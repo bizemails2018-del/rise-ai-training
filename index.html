@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Understanding AI: From Concepts to Agents — RISE Residential</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #F8FAFB; color: #2D3748; }
+.header { background: linear-gradient(135deg, #1B3A5C 0%, #2E75B6 100%); color: #fff; padding: 28px 24px 20px; text-align: center; }
+.header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+.header p { margin-top: 6px; font-size: 14px; opacity: 0.85; }
+.tabs { display: flex; gap: 4px; padding: 12px 16px; background: #fff; border-bottom: 1px solid #E2E8F0; overflow-x: auto; }
+.tab { padding: 10px 16px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 500; background: transparent; color: #2D3748; transition: all 0.2s; white-space: nowrap; flex-shrink: 0; font-family: inherit; }
+.tab.active { font-weight: 700; background: #1B3A5C; color: #fff; }
+.tab:hover:not(.active) { background: #F0F4FF; }
+.content { padding: 20px 16px; max-width: 900px; margin: 0 auto; }
+.card { background: #fff; border-radius: 12px; border: 1px solid #E2E8F0; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 16px; }
+.intro-card { background: #F0F4FF; border-color: #C5CAE9; }
+.intro-card p { font-size: 14px; line-height: 1.7; color: #1B3A5C; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* Expandable items */
+.expand-item { cursor: pointer; border: 2px solid #E2E8F0; border-radius: 12px; padding: 20px; transition: all 0.2s; margin-bottom: 12px; background: #fff; }
+.expand-item:hover { border-color: #ccc; }
+.expand-item.open { border-color: var(--dk); }
+.expand-header { display: flex; align-items: center; gap: 12px; }
+.expand-icon { font-size: 28px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 10px; flex-shrink: 0; }
+.expand-title h3 { margin: 2px 0; font-size: 17px; font-weight: 700; }
+.expand-title p { margin: 0; font-size: 13px; color: #718096; }
+.expand-meta { font-size: 11px; color: #718096; text-align: right; flex-shrink: 0; }
+.expand-arrow { font-size: 18px; color: #718096; transition: transform 0.2s; margin-left: auto; }
+.expand-item.open .expand-arrow { transform: rotate(180deg); }
+.expand-body { display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid #eee; }
+.expand-item.open .expand-body { display: block; }
+.detail-section { margin-bottom: 14px; }
+.detail-label { font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.05em; }
+.detail-text { font-size: 14px; line-height: 1.7; }
+.detail-box { border-radius: 8px; padding: 12px; margin-bottom: 14px; }
+.level-badge { font-size: 11px; font-weight: 700; color: #718096; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px; }
+
+/* Agency vs Autonomy */
+.split-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+@media (max-width: 640px) { .split-grid { grid-template-columns: 1fr; } }
+.concept-card { text-align: center; }
+.concept-card .icon { font-size: 36px; }
+.concept-card h3 { margin: 8px 0 4px; font-size: 18px; }
+.concept-card .subtitle { font-size: 12px; color: #718096; font-style: italic; margin-bottom: 12px; }
+.concept-card .body { text-align: left; font-size: 14px; line-height: 1.7; }
+.analogy-box { margin-top: 8px; padding: 8px 12px; border-radius: 6px; font-size: 13px; }
+
+/* Progressive autonomy */
+.prog-card { border-left: 4px solid #2E7D32; }
+.prog-card h3 { color: #2E7D32; margin-bottom: 12px; font-size: 16px; }
+.prog-levels { display: flex; gap: 8px; flex-wrap: wrap; }
+.prog-level { flex: 1 1 140px; border-radius: 8px; padding: 10px 12px; font-size: 12px; line-height: 1.5; min-width: 140px; }
+.prog-level .label { font-weight: 700; margin-bottom: 2px; }
+
+/* Chart */
+.chart-container { padding: 24px; }
+.chart-grid { display: grid; grid-template-columns: 100px 1fr; gap: 0; max-width: 700px; margin: 0 auto; }
+.chart-x-labels { grid-column: 2; display: flex; justify-content: space-between; padding: 0 8px 8px; font-size: 12px; color: #718096; }
+.chart-x-labels .center { font-weight: 600; color: #2D3748; }
+.chart-y-labels { display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 8px 8px 8px 0; }
+.chart-y-labels span { font-size: 12px; color: #718096; }
+.chart-y-labels .center { writing-mode: vertical-rl; transform: rotate(180deg); font-weight: 600; color: #2D3748; }
+.chart-area { position: relative; background: linear-gradient(135deg, #F8FAFB 0%, #EDE7F6 50%, #E8F5E9 100%); border: 1px solid #E2E8F0; border-radius: 12px; padding: 20px; min-height: 320px; }
+.chart-dot { position: absolute; transform: translate(-50%, 50%); border-radius: 20px; padding: 6px 14px; font-size: 13px; font-weight: 600; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-width: 2px; border-style: solid; }
+.chart-legend { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.9); border-radius: 8px; padding: 6px 12px; font-size: 11px; color: #718096; text-align: center; border: 1px solid #E2E8F0; white-space: nowrap; }
+
+/* Together tab */
+.building-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 640px) { .building-grid { grid-template-columns: 1fr; } }
+.building-item { border-radius: 10px; padding: 16px; }
+.building-item .icon { font-size: 24px; margin-bottom: 6px; }
+.building-item .label { font-size: 13px; font-weight: 700; color: #1B3A5C; margin-bottom: 2px; }
+.building-item .analogy { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+.building-item .desc { font-size: 13px; color: #718096; line-height: 1.5; }
+.flow-card { border-left: 4px solid #E65100; }
+.flow-card h3 { color: #E65100; margin-bottom: 12px; font-size: 16px; }
+.flow-box { background: #FFF8E1; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+.flow-step { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; }
+.flow-step:last-child { margin-bottom: 0; }
+.flow-num { width: 28px; height: 28px; border-radius: 50%; background: #1B3A5C; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+.flow-text { font-size: 14px; line-height: 1.6; }
+.flow-text strong { color: #1B3A5C; }
+.summary-card { background: linear-gradient(135deg, #1B3A5C 0%, #2E75B6 100%); color: #fff; border: none; }
+.summary-card h3 { font-size: 16px; margin-bottom: 12px; }
+.summary-card p { font-size: 16px; line-height: 1.8; font-style: italic; }
+.caption { font-size: 13px; color: #718096; font-style: italic; text-align: center; margin-top: 12px; }
+
+/* AGENT Framework tab */
+.phase-timeline { position: relative; padding-left: 40px; }
+.phase-timeline::before { content: ''; position: absolute; left: 18px; top: 30px; bottom: 30px; width: 3px; background: linear-gradient(to bottom, #1565C0, #2E7D32, #E65100, #6A1B9A, #C62828); border-radius: 3px; }
+.phase-card { position: relative; margin-bottom: 20px; }
+.phase-dot { position: absolute; left: -30px; top: 20px; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; z-index: 1; }
+.phase-inner { border-radius: 12px; border: 2px solid #E2E8F0; padding: 20px; background: #fff; cursor: pointer; transition: all 0.2s; }
+.phase-inner:hover { border-color: #ccc; }
+.phase-card.open .phase-inner { border-color: var(--pc); }
+.phase-head { display: flex; align-items: center; gap: 12px; }
+.phase-num { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; border-radius: 6px; padding: 3px 10px; }
+.phase-head h3 { font-size: 17px; font-weight: 700; flex: 1; }
+.phase-head .subtitle { font-size: 13px; color: #718096; margin-top: 2px; }
+.phase-details { display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid #eee; }
+.phase-card.open .phase-details { display: block; }
+.phase-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+@media (max-width: 640px) { .phase-grid { grid-template-columns: 1fr; } }
+.phase-grid-item { border-radius: 8px; padding: 14px; }
+.phase-grid-item .label { font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.04em; }
+.phase-grid-item p { font-size: 13px; line-height: 1.6; }
+.phase-activities { list-style: none; padding: 0; }
+.phase-activities li { font-size: 13px; line-height: 1.6; padding: 6px 0 6px 20px; position: relative; }
+.phase-activities li::before { content: '→'; position: absolute; left: 0; color: #718096; }
+.phase-output { border-radius: 8px; padding: 12px 16px; margin-top: 12px; font-size: 13px; line-height: 1.6; }
+.phase-output .label { font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+.cycle-card { border: 2px solid #2E75B6; border-radius: 12px; padding: 20px; background: linear-gradient(135deg, #F0F4FF 0%, #F8FAFB 100%); margin-top: 8px; }
+.cycle-card h3 { color: #1B3A5C; font-size: 16px; margin-bottom: 12px; }
+.cycle-visual { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; margin: 16px 0; }
+.cycle-node { padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; color: #fff; }
+.cycle-arrow { font-size: 18px; color: #718096; }
+.cycle-desc { font-size: 14px; line-height: 1.7; color: #4A5568; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Understanding AI: From Concepts to Agents</h1>
+  <p>RISE Residential — Agentic AI Training Reference</p>
+</div>
+
+<div class="tabs" id="tabs">
+  <button class="tab active" data-tab="landscape">🗺️ AI Landscape</button>
+  <button class="tab" data-tab="agents">🤖 Five Agent Types</button>
+  <button class="tab" data-tab="agency">⚖️ Agency vs Autonomy</button>
+  <button class="tab" data-tab="together">🔗 How It All Connects</button>
+  <button class="tab" data-tab="agent">🔄 AGENT Framework</button>
+</div>
+
+<div class="content">
+
+<!-- ============ AI LANDSCAPE ============ -->
+<div class="panel active" id="panel-landscape">
+  <div class="card intro-card">
+    <p><strong>The simplest way to explain it:</strong> Machine Learning finds patterns. Generative AI creates content. An AI Agent takes actions. Agentic AI orchestrates entire systems. Each one builds on the last — like floors of a building.</p>
+  </div>
+
+  <div class="expand-item" style="--dk:#1565C0" onclick="toggle(this)">
+    <div class="expand-header">
+      <div class="expand-icon" style="background:#E3F2FD">🔍</div>
+      <div class="expand-title" style="flex:1">
+        <div class="level-badge">Level 1</div>
+        <h3 style="color:#1565C0">Machine Learning</h3>
+        <p>Finds patterns in data</p>
+      </div>
+      <span class="expand-arrow">▾</span>
+    </div>
+    <div class="expand-body">
+      <div class="detail-section">
+        <div class="detail-label" style="color:#1565C0">Plain English</div>
+        <p class="detail-text">You show a computer 10,000 spam emails and 10,000 real emails. It learns to tell the difference. That's machine learning — pattern recognition from examples.</p>
+      </div>
+      <div class="detail-section">
+        <div class="detail-label" style="color:#1565C0">How It Fits</div>
+        <p class="detail-text">The foundation — every AI technology below uses machine learning under the hood</p>
+      </div>
+      <div class="detail-box" style="background:rgba(255,255,255,0.7)">
+        <div class="detail-label" style="color:#1565C0">🏢 RISE Example</div>
+        <p class="detail-text">Predicting which new hires are retention risks based on historical patterns</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="expand-item" style="--dk:#2E7D32" onclick="toggle(this)">
+    <div class="expand-header">
+      <div class="expand-icon" style="background:#E8F5E9">✨</div>
+      <div class="expand-title" style="flex:1">
+        <div class="level-badge">Level 2 <span style="color:#718096">→</span></div>
+        <h3 style="color:#2E7D32">Generative AI</h3>
+        <p>Creates new content</p>
+      </div>
+      <span class="expand-arrow">▾</span>
+    </div>
+    <div class="expand-body">
+      <div class="detail-section">
+        <div class="detail-label" style="color:#2E7D32">Plain English</div>
+        <p class="detail-text">Instead of just recognizing patterns, it creates new things — text, images, code. ChatGPT is generative AI. It doesn't just find answers; it writes them.</p>
+      </div>
+      <div class="detail-section">
+        <div class="detail-label" style="color:#2E7D32">How It Fits</div>
+        <p class="detail-text">The brain — it can understand context, write communications, and reason through problems</p>
+      </div>
+      <div class="detail-box" style="background:rgba(255,255,255,0.7)">
+        <div class="detail-label" style="color:#2E7D32">🏢 RISE Example</div>
+        <p class="detail-text">Drafting personalized welcome messages or generating check-in talking points for managers</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="expand-item" style="--dk:#E65100" onclick="toggle(this)">
+    <div class="expand-header">
+      <div class="expand-icon" style="background:#FFF3E0">🤖</div>
+      <div class="expand-title" style="flex:1">
+        <div class="level-badge">Level 3 <span style="color:#718096">→</span></div>
+        <h3 style="color:#E65100">AI Agent</h3>
+        <p>Takes actions in the real world</p>
+      </div>
+      <span class="expand-arrow">▾</span>
+    </div>
+    <div class="expand-body">
+      <div class="detail-section">
+        <div class="detail-label" style="color:#E65100">Plain English</div>
+        <p class="detail-text">An AI agent doesn't just think or write — it does things. It can send an email, create a ticket, update a record, schedule a meeting. It has hands, not just a brain.</p>
+      </div>
+      <div class="detail-section">
+        <div class="detail-label" style="color:#E65100">How It Fits</div>
+        <p class="detail-text">The worker — it connects intelligence to action through tools and system access</p>
+      </div>
+      <div class="detail-box" style="background:rgba(255,255,255,0.7)">
+        <div class="detail-label" style="color:#E65100">🏢 RISE Example</div>
+        <p class="detail-text">Automatically submitting IT provisioning tickets, sending reminders, updating training assignments</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="expand-item" style="--dk:#6A1B9A" onclick="toggle(this)">
+    <div class="expand-header">
+      <div class="expand-icon" style="background:#F3E5F5">🌐</div>
+      <div class="expand-title" style="flex:1">
+        <div class="level-badge">Level 4 <span style="color:#718096">→</span></div>
+        <h3 style="color:#6A1B9A">Agentic AI</h3>
+        <p>Orchestrated systems of agents working together</p>
+      </div>
+      <span class="expand-arrow">▾</span>
+    </div>
+    <div class="expand-body">
+      <div class="detail-section">
+        <div class="detail-label" style="color:#6A1B9A">Plain English</div>
+        <p class="detail-text">Not one agent, but an intelligent system where multiple capabilities work together toward a goal. It plans, executes, monitors, learns, and adapts — like a team, not a single worker.</p>
+      </div>
+      <div class="detail-section">
+        <div class="detail-label" style="color:#6A1B9A">How It Fits</div>
+        <p class="detail-text">The system — multiple agents coordinated to own an entire outcome end-to-end</p>
+      </div>
+      <div class="detail-box" style="background:rgba(255,255,255,0.7)">
+        <div class="detail-label" style="color:#6A1B9A">🏢 RISE Example</div>
+        <p class="detail-text">The complete onboarding orchestration layer: managing the journey from offer to Day 180 across all systems, people, and touchpoints</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ FIVE AGENT TYPES ============ -->
+<div class="panel" id="panel-agents">
+  <div class="card intro-card">
+    <p><strong>The five types are not a hierarchy — they're roles.</strong> A mature agentic system uses all five simultaneously. The Assistant answers questions. The Analyst watches for patterns. The Tasker handles routine work. The Orchestrator coordinates the journey. The Guardian makes sure it's all safe and fair.</p>
+  </div>
+
+  <div class="expand-item" style="--dk:#1565C0" onclick="toggle(this)">
+    <div class="expand-header">
+      <div class="expand-icon" style="background:#90CAF9">💬</div>
+      <div class="expand-title" style="flex:1">
+        <h3 style="color:#1565C0">Assistant</h3>
+        <p>Answers when asked</p>
+      </div>
+      <div class="expand-meta">
+        <div>Agency: ●○○○○</div>
+        <div>Autonomy: ○○○○○</div>
+      </div>
+      <span class="expand-arrow">▾</span>
+    </div>
+    <div class="expand-body">
+      <div class="detail-section">
+        <div class="detail-label" style="color:#1565C0">🧠 The Analogy</div>
+        <p class="detail-text">Think of a front desk receptionist. They know a lot, but they only help when you walk up and ask a question. They don't come find you.</p>
+      </div>
+      <div class="detail-box" style="background:#90CAF930">
+        <div class="detail-label" style="color:#1565C0">🏢 At RISE</div>
+        <p class="detail-text">A new hire asks a chatbot: "What's the dress code?" It answers. That's it — conversation over until the next question.</p>
+      </div>
+      <div class="detail-box" style="background:#F5F5F5">
+        <div class="detail-label" style="color:#718096">Key Trait</div>
+        <p class="detail-text" style="font-style:italic">Reactive — waits for input, provides output, forgets between conversations</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="expand-item" style="--dk:#2E7D32" onclick="toggle(this)">
+    <div class="expand-header">
+      <div class="expand-icon" style="background:#A5D6A7">📊</div>
+      <div class="expand-title" style="flex:1">
+        <h3 style="color:#2E7D32">Analyst</h3>
+        <p>Watches and flags</p>
+      </div>
+      <div class="expand-meta">
+        <div>Agency: ●●○○○</div>
+        <div>Autonomy: ●○○○○</div>
+      </div>
+      <span class="expand-arrow">▾</span>
+    </div>
+    <div class="expand-body">
+      <div class="detail-section">
+        <div class="detail-label" style="color:#2E7D32">🧠 The Analogy</div>
+        <p class="detail-text">Think of a security camera with a smart alert system. It's always watching, and it taps you on the shoulder when it spots something that matters. But it doesn't do anything about it — that's still your job.</p>
+      </div>
+      <div class="detail-box" style="background:#A5D6A730">
+        <div class="detail-label" style="color:#2E7D32">🏢 At RISE</div>
+        <p class="detail-text">The system notices that 4 of the last 6 new hires at a property had incomplete paperwork on Day 1. It flags the pattern to HR. HR decides what to do.</p>
+      </div>
+      <div class="detail-box" style="background:#F5F5F5">
+        <div class="detail-label" style="color:#718096">Key Trait</div>
+        <p class="detail-text" style="font-style:italic">Observant — monitors continuously, detects patterns, surfaces insights</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="expand-item" style="--dk:#E65100" onclick="toggle(this)">
+    <div class="expand-header">
+      <div class="expand-icon" style="background:#FFE082">⚡</div>
+      <div class="expand-title" style="flex:1">
+        <h3 style="color:#E65100">Tasker</h3>
+        <p>Executes on rules</p>
+      </div>
+      <div class="expand-meta">
+        <div>Agency: ●●●○○</div>
+        <div>Autonomy: ●●●○○</div>
+      </div>
+      <span class="expand-arrow">▾</span>
+    </div>
+    <div class="expand-body">
+      <div class="detail-section">
+        <div class="detail-label" style="color:#E65100">🧠 The Analogy</div>
+        <p class="detail-text">Think of a thermostat. You set the rules (keep it 72°). It handles everything within those rules without asking — turns heat on, turns it off, adjusts. But it can't decide to repaint the walls.</p>
+      </div>
+      <div class="detail-box" style="background:#FFE08230">
+        <div class="detail-label" style="color:#E65100">🏢 At RISE</div>
+        <p class="detail-text">Offer accepted in HRIS → agent automatically sends welcome email, dispatches paperwork, submits IT ticket, assigns LMS modules. No human had to push any button.</p>
+      </div>
+      <div class="detail-box" style="background:#F5F5F5">
+        <div class="detail-label" style="color:#718096">Key Trait</div>
+        <p class="detail-text" style="font-style:italic">Reliable — follows defined rules, handles routine work, never forgets a step</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="expand-item" style="--dk:#6A1B9A" onclick="toggle(this)">
+    <div class="expand-header">
+      <div class="expand-icon" style="background:#CE93D8">🎼</div>
+      <div class="expand-title" style="flex:1">
+        <h3 style="color:#6A1B9A">Orchestrator</h3>
+        <p>Coordinates the whole journey</p>
+      </div>
+      <div class="expand-meta">
+        <div>Agency: ●●●●●</div>
+        <div>Autonomy: ●●●●○</div>
+      </div>
+      <span class="expand-arrow">▾</span>
+    </div>
+    <div class="expand-body">
+      <div class="detail-section">
+        <div class="detail-label" style="color:#6A1B9A">🧠 The Analogy</div>
+        <p class="detail-text">Think of a symphony conductor. Every musician (system) knows their part, but the conductor makes sure they all come in at the right time, adjusts tempo when needed, and keeps the whole performance coherent.</p>
+      </div>
+      <div class="detail-box" style="background:#CE93D830">
+        <div class="detail-label" style="color:#6A1B9A">🏢 At RISE</div>
+        <p class="detail-text">The agent manages the entire offer-to-Day-180 journey — personalizing training paths, adapting check-in timing based on engagement, coordinating between HRIS, LMS, and ticketing, and learning from every cohort.</p>
+      </div>
+      <div class="detail-box" style="background:#F5F5F5">
+        <div class="detail-label" style="color:#718096">Key Trait</div>
+        <p class="detail-text" style="font-style:italic">Intelligent — manages complexity across systems, adapts to context, improves over time</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="expand-item" style="--dk:#C62828" onclick="toggle(this)">
+    <div class="expand-header">
+      <div class="expand-icon" style="background:#EF9A9A">🛡️</div>
+      <div class="expand-title" style="flex:1">
+        <h3 style="color:#C62828">Guardian</h3>
+        <p>Protects and governs</p>
+      </div>
+      <div class="expand-meta">
+        <div>Agency: ●●●●○</div>
+        <div>Autonomy: ●●●○○</div>
+      </div>
+      <span class="expand-arrow">▾</span>
+    </div>
+    <div class="expand-body">
+      <div class="detail-section">
+        <div class="detail-label" style="color:#C62828">🧠 The Analogy</div>
+        <p class="detail-text">Think of a building's fire safety system. It doesn't build anything or manage anyone. It watches for danger, enforces codes, triggers alarms, and makes sure the guardrails hold — even when everyone else is focused on the work.</p>
+      </div>
+      <div class="detail-box" style="background:#EF9A9A30">
+        <div class="detail-label" style="color:#C62828">🏢 At RISE</div>
+        <p class="detail-text">The agent monitors for equity violations in adaptive pacing, flags when a manager rubber-stamps too many recommendations, enforces data retention policies, and ensures no new hire falls through the cracks.</p>
+      </div>
+      <div class="detail-box" style="background:#F5F5F5">
+        <div class="detail-label" style="color:#718096">Key Trait</div>
+        <p class="detail-text" style="font-style:italic">Vigilant — enforces boundaries, monitors compliance, prevents harm at scale</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ AGENCY VS AUTONOMY ============ -->
+<div class="panel" id="panel-agency">
+  <div class="card intro-card">
+    <p><strong>People confuse these two constantly.</strong> Agency is the ability to act — having hands. Autonomy is the permission to act without asking — being allowed to use those hands. An agent can be highly capable (high agency) but tightly controlled (low autonomy). Our approach: start with high agency, low autonomy — then earn autonomy through demonstrated performance.</p>
+  </div>
+
+  <div class="split-grid">
+    <div class="card concept-card" style="border-top: 4px solid #2E75B6">
+      <div class="icon">🖐️</div>
+      <h3 style="color:#2E75B6">Agency</h3>
+      <div class="subtitle">What it CAN do</div>
+      <div class="body">
+        <p style="margin-bottom:8px">The range of actions an agent is <strong>capable</strong> of performing.</p>
+        <p style="margin-bottom:8px">A high-agency agent can send emails, update records, create tickets, schedule meetings, analyze data, and generate reports.</p>
+        <div class="analogy-box" style="background:#E3F2FD">
+          <strong>Property analogy:</strong> A maintenance tech who is certified in plumbing, electrical, HVAC, and appliances has high agency — they can fix almost anything.
+        </div>
+      </div>
+    </div>
+    <div class="card concept-card" style="border-top: 4px solid #6A1B9A">
+      <div class="icon">🔑</div>
+      <h3 style="color:#6A1B9A">Autonomy</h3>
+      <div class="subtitle">What it's ALLOWED to do alone</div>
+      <div class="body">
+        <p style="margin-bottom:8px">The degree to which an agent can act <strong>without human approval</strong>.</p>
+        <p style="margin-bottom:8px">A high-autonomy agent decides when, how, and whether to act. A low-autonomy agent recommends and waits for a human to say "go."</p>
+        <div class="analogy-box" style="background:#F3E5F5">
+          <strong>Property analogy:</strong> That same tech might need manager approval for any repair over $200. They have the skills (agency) but not the authority (autonomy) to act alone on big decisions.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card prog-card">
+    <h3>🔄 Progressive Autonomy (Model C)</h3>
+    <p style="font-size:14px;line-height:1.7;margin-bottom:12px">Our approach: agents <strong>earn</strong> autonomy over time, just like a new hire earns independence. Start tight, expand gradually, always with the ability to pull back.</p>
+    <div class="prog-levels">
+      <div class="prog-level" style="background:#FFCDD2"><div class="label">Level 1</div>Agent recommends, human approves everything</div>
+      <div class="prog-level" style="background:#FFE082"><div class="label">Level 2</div>Agent acts on routine, human approves exceptions</div>
+      <div class="prog-level" style="background:#C8E6C9"><div class="label">Level 3</div>Agent acts broadly, human reviews periodically</div>
+      <div class="prog-level" style="background:#B39DDB"><div class="label">Level 4</div>Agent acts autonomously, human handles edge cases</div>
+      <div class="prog-level" style="background:#90CAF9"><div class="label">Level 5</div>Agent owns the process, human sets strategy</div>
+    </div>
+  </div>
+
+  <h3 style="margin:24px 0 12px;font-size:16px;color:#1B3A5C">Where Each Agent Type Falls</h3>
+  <div class="chart-container">
+    <div class="chart-grid">
+      <div class="chart-x-labels">
+        <span>Low Autonomy</span>
+        <span class="center">AUTONOMY →</span>
+        <span>High Autonomy</span>
+      </div>
+      <div class="chart-y-labels">
+        <span>High Agency</span>
+        <span class="center">← AGENCY</span>
+        <span>Low Agency</span>
+      </div>
+      <div class="chart-area">
+        <div class="chart-dot" style="left:5%;bottom:25%;background:#90CAF9;border-color:#1565C0;color:#1565C0">💬 Assistant</div>
+        <div class="chart-dot" style="left:21%;bottom:37%;background:#A5D6A7;border-color:#2E7D32;color:#2E7D32">📊 Analyst</div>
+        <div class="chart-dot" style="left:53%;bottom:53%;background:#FFE082;border-color:#E65100;color:#E65100">⚡ Tasker</div>
+        <div class="chart-dot" style="left:69%;bottom:85%;background:#CE93D8;border-color:#6A1B9A;color:#6A1B9A">🎼 Orchestrator</div>
+        <div class="chart-dot" style="left:53%;bottom:69%;background:#EF9A9A;border-color:#C62828;color:#C62828">🛡️ Guardian</div>
+        <div class="chart-legend">Agency = ability to act &nbsp;|&nbsp; Autonomy = permission to act without asking</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ HOW IT ALL CONNECTS ============ -->
+<div class="panel" id="panel-together">
+  <div class="card intro-card">
+    <p><strong>Here's how it all fits:</strong> Machine Learning and Generative AI are <em>technologies</em> — they power the intelligence. The five agent types are <em>roles</em> — they define what each piece of the system does. Agency and autonomy are <em>design decisions</em> — they determine how much capability and freedom each role gets. Agentic AI is the <em>architecture</em> — the system that brings it all together.</p>
+  </div>
+
+  <div class="card">
+    <h3 style="color:#1B3A5C;margin-bottom:16px;font-size:16px">🏗️ The Building Analogy</h3>
+    <div class="building-grid">
+      <div class="building-item" style="background:#E3F2FD">
+        <div class="icon">🧱</div>
+        <div class="label">Machine Learning</div>
+        <div class="analogy">The foundation & wiring</div>
+        <div class="desc">Pattern recognition that powers everything above it</div>
+      </div>
+      <div class="building-item" style="background:#E8F5E9">
+        <div class="icon">⚡</div>
+        <div class="label">Generative AI</div>
+        <div class="analogy">The electrical system</div>
+        <div class="desc">Creates the energy (content, reasoning, communication) that the building needs</div>
+      </div>
+      <div class="building-item" style="background:#FFF3E0">
+        <div class="icon">🚪</div>
+        <div class="label">AI Agents</div>
+        <div class="analogy">The individual rooms</div>
+        <div class="desc">Each has a purpose: kitchen (Tasker), security office (Guardian), reception (Assistant), control room (Analyst), manager's office (Orchestrator)</div>
+      </div>
+      <div class="building-item" style="background:#F3E5F5">
+        <div class="icon">🏢</div>
+        <div class="label">Agentic AI</div>
+        <div class="analogy">The whole building</div>
+        <div class="desc">All the rooms working together as one intelligent system with HVAC, plumbing, and electrical coordinated</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card flow-card">
+    <h3>🎯 Applied to RISE Onboarding</h3>
+    <p style="font-size:14px;line-height:1.8;margin-bottom:12px">When a new hire accepts an offer, here's what happens in an agentic system — and which piece does what:</p>
+    <div class="flow-box">
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-text"><strong>Tasker ⚡:</strong> Detects the offer acceptance event in HRIS and triggers the full pre-boarding sequence automatically</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-text"><strong>Orchestrator 🎼:</strong> Coordinates the welcome email, paperwork dispatch, IT ticket, LMS assignment, and manager prep — all timed and sequenced</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-text"><strong>Assistant 💬:</strong> Answers the new hire's questions: "When do I start?" "Where do I park?" "What should I wear?"</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">4</div>
+        <div class="flow-text"><strong>Analyst 📊:</strong> Notices the new hire hasn't opened pre-boarding emails in 5 days and flags a potential disengagement risk</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">5</div>
+        <div class="flow-text"><strong>Guardian 🛡️:</strong> Ensures the flag is routed to HR (not auto-actioned), checks that communication frequency isn't creating a surveillance dynamic, verifies equity across all active new hires</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">6</div>
+        <div class="flow-text"><strong>Human 👤:</strong> HR reviews the flag, considers context, decides whether to reach out personally. The agent provided the intelligence — the human provides the judgment.</div>
+      </div>
+    </div>
+    <p class="caption">Five agent roles + human judgment = one seamless experience the new hire never has to think about</p>
+  </div>
+
+  <div class="card summary-card">
+    <h3>💡 The One-Sentence Summary for Your Team</h3>
+    <p>"Machine learning finds the patterns. Generative AI creates the communications. Five types of agents — each with a different role — take action, coordinate, and protect. Agency determines what they can do. Autonomy determines what they're allowed to do alone. And we control the autonomy dial — starting tight and opening it as the system earns trust."</p>
+  </div>
+</div>
+
+<!-- ============ AGENT FRAMEWORK ============ -->
+<div class="panel" id="panel-agent">
+  <div class="card intro-card">
+    <p><strong>AGENT is our implementation methodology — the step-by-step system for redesigning workflows with agentic AI.</strong> It's a cycle, not a sequence. Each phase answers a critical question, produces specific outputs, and feeds into the next. When Track reveals something new, you loop back to Audit. The system gets smarter with every pass.</p>
+  </div>
+
+  <!-- Cycle Visual -->
+  <div class="cycle-card" style="margin-bottom:20px">
+    <h3>🔄 The AGENT Cycle</h3>
+    <div class="cycle-visual">
+      <span class="cycle-node" style="background:#1565C0">A — Audit</span>
+      <span class="cycle-arrow">→</span>
+      <span class="cycle-node" style="background:#2E7D32">G — Gauge</span>
+      <span class="cycle-arrow">→</span>
+      <span class="cycle-node" style="background:#E65100">E — Engineer</span>
+      <span class="cycle-arrow">→</span>
+      <span class="cycle-node" style="background:#6A1B9A">N — Navigate</span>
+      <span class="cycle-arrow">→</span>
+      <span class="cycle-node" style="background:#C62828">T — Track</span>
+      <span class="cycle-arrow">↩</span>
+    </div>
+    <p class="cycle-desc" style="text-align:center">Track feeds back into Audit — every insight triggers a new cycle of improvement. The framework is an operating system, not a one-time project.</p>
+  </div>
+
+  <!-- Timeline -->
+  <div class="phase-timeline">
+
+    <!-- AUDIT -->
+    <div class="phase-card" style="--pc:#1565C0" onclick="this.classList.toggle('open')">
+      <div class="phase-dot" style="background:#1565C0">A</div>
+      <div class="phase-inner">
+        <div class="phase-head">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="phase-num" style="background:#E3F2FD;color:#1565C0">Phase 1</span>
+              <span style="font-size:20px">🔍</span>
+            </div>
+            <h3 style="color:#1565C0">AUDIT — Workflow Discovery & Outcome Mapping</h3>
+            <div class="subtitle">Where are we now, and where do we want to be?</div>
+          </div>
+          <span class="expand-arrow">▾</span>
+        </div>
+        <div class="phase-details">
+          <div class="phase-grid">
+            <div class="phase-grid-item" style="background:#E3F2FD">
+              <div class="label" style="color:#1565C0">🧠 The Analogy</div>
+              <p>A GPS needs two inputs: your current location and your destination. Give it only one and it can't generate directions. The Audit provides both — mapping the current state and defining the target outcomes.</p>
+            </div>
+            <div class="phase-grid-item" style="background:#F0F4FF">
+              <div class="label" style="color:#1565C0">⚠️ The Trap to Avoid</div>
+              <p>If you only map how humans currently do the work, you'll design agents that mimic human inefficiency — the "jet engine on a horse carriage" problem. Map <strong>outcomes</strong>, not just steps.</p>
+            </div>
+          </div>
+          <div style="margin-bottom:14px">
+            <div class="label" style="color:#1565C0;font-size:11px;font-weight:700;text-transform:uppercase;margin-bottom:8px">Key Activities</div>
+            <ul class="phase-activities">
+              <li><strong>Workflow Mapping:</strong> Document every step, trigger, system, decision point, and pain point in the current process</li>
+              <li><strong>System & Data Landscape:</strong> Identify all systems, what data they hold, and whether they can talk to each other</li>
+              <li><strong>Stakeholder Interviews:</strong> Talk to new hires, managers, HR team, and (if available) people who left within 90 days</li>
+              <li><strong>Gap Analysis:</strong> Score confidence across six dimensions — formal steps, workarounds, decisions, handoffs, location variance, outcome validation</li>
+              <li><strong>Outcome Definition:</strong> For each step, define the desired outcome (not just the output) — "new hire feels committed" vs. "paperwork completed"</li>
+            </ul>
+          </div>
+          <div class="phase-grid">
+            <div class="phase-grid-item" style="background:#FFF8E1">
+              <div class="label" style="color:#E65100">🏢 At RISE</div>
+              <p>We mapped five onboarding workflows (pre-boarding through feedback aggregation) across three disconnected systems (HRIS, LMS, ticketing) and discovered the core problem: not a systems problem, but a missing orchestration layer.</p>
+            </div>
+            <div class="phase-grid-item" style="background:#F5F5F5">
+              <div class="label" style="color:#718096">Key Question for Your Team</div>
+              <p>"What's the difference between what this step <em>produces</em> (the output) and what we actually <em>want</em> (the outcome)? Where is that gap largest?"</p>
+            </div>
+          </div>
+          <div class="phase-output" style="background:#E3F2FD">
+            <div class="label" style="color:#1565C0">📦 Output</div>
+            Workflow maps with pain points, desired outcomes, system landscape, stakeholder insights, gap analysis, and confidence scores. This becomes the foundation for everything that follows.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GAUGE -->
+    <div class="phase-card" style="--pc:#2E7D32" onclick="this.classList.toggle('open')">
+      <div class="phase-dot" style="background:#2E7D32">G</div>
+      <div class="phase-inner">
+        <div class="phase-head">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="phase-num" style="background:#E8F5E9;color:#2E7D32">Phase 2</span>
+              <span style="font-size:20px">📏</span>
+            </div>
+            <h3 style="color:#2E7D32">GAUGE — Readiness Scoring & Prioritization</h3>
+            <div class="subtitle">How ready is each workflow for agent involvement?</div>
+          </div>
+          <span class="expand-arrow">▾</span>
+        </div>
+        <div class="phase-details">
+          <div class="phase-grid">
+            <div class="phase-grid-item" style="background:#E8F5E9">
+              <div class="label" style="color:#2E7D32">🧠 The Analogy</div>
+              <p>A doctor doesn't treat every symptom at once. They triage — assess severity, readiness for treatment, and risk of intervention. Gauge is your triage system for deciding what to automate first, what needs preparation, and what should stay human.</p>
+            </div>
+            <div class="phase-grid-item" style="background:#F0FFF0">
+              <div class="label" style="color:#2E7D32">Two Critical Questions</div>
+              <p><strong>"Can we automate this?"</strong> (readiness scoring)<br>is different from<br><strong>"Should we automate this?"</strong> (ethical assessment)<br><br>Gauge answers both.</p>
+            </div>
+          </div>
+          <div style="margin-bottom:14px">
+            <div class="label" style="color:#2E7D32;font-size:11px;font-weight:700;text-transform:uppercase;margin-bottom:8px">Eight Readiness Dimensions</div>
+            <ul class="phase-activities">
+              <li><strong>Impact:</strong> How much value does improving this create? (business + human impact)</li>
+              <li><strong>Repeatability:</strong> How standardized and rule-based is it?</li>
+              <li><strong>Complexity:</strong> How many systems, decisions, and exceptions are involved?</li>
+              <li><strong>Data Readiness:</strong> Is the data structured, accessible, and machine-readable?</li>
+              <li><strong>System Readiness:</strong> Can the systems actually integrate?</li>
+              <li><strong>Risk Tolerance:</strong> What happens if the agent makes an error?</li>
+              <li><strong>Decision Codifiability:</strong> Can decisions be expressed as clear rules?</li>
+              <li><strong>Stakeholder Confidence:</strong> Do the people involved trust this approach?</li>
+            </ul>
+          </div>
+          <div class="phase-grid">
+            <div class="phase-grid-item" style="background:#FFF8E1">
+              <div class="label" style="color:#E65100">🏢 At RISE</div>
+              <p>Pre-boarding scored highest on readiness (structured, rule-based, high impact). Role-specific training scored lowest on system readiness (tribal knowledge, no codified standards). This told us where to start.</p>
+            </div>
+            <div class="phase-grid-item" style="background:#FCE4EC">
+              <div class="label" style="color:#C62828">Ethical Layer (HDSR Framework)</div>
+              <p>Five ethical questions scored 1–5 for each workflow: Does it improve experience? Could it cause harm? Does the person retain choice? Will outcomes be equitable? Can decisions be explained? Score below 18/25 = redesign before engineering.</p>
+            </div>
+          </div>
+          <div class="phase-output" style="background:#E8F5E9">
+            <div class="label" style="color:#2E7D32">📦 Output</div>
+            Readiness scores for each workflow, ethical assessment, prioritized engineering roadmap — a clear answer to "what do we build first and why."
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENGINEER -->
+    <div class="phase-card" style="--pc:#E65100" onclick="this.classList.toggle('open')">
+      <div class="phase-dot" style="background:#E65100">E</div>
+      <div class="phase-inner">
+        <div class="phase-head">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="phase-num" style="background:#FFF3E0;color:#E65100">Phase 3</span>
+              <span style="font-size:20px">⚙️</span>
+            </div>
+            <h3 style="color:#E65100">ENGINEER — System Design & Human-Agent Role Mapping</h3>
+            <div class="subtitle">Who does what — human vs. agent?</div>
+          </div>
+          <span class="expand-arrow">▾</span>
+        </div>
+        <div class="phase-details">
+          <div class="phase-grid">
+            <div class="phase-grid-item" style="background:#FFF3E0">
+              <div class="label" style="color:#E65100">🧠 The Analogy</div>
+              <p>An architect doesn't just draw a building — they specify which walls are load-bearing, where the plumbing runs, and which rooms need emergency exits. Engineer specifies exactly how humans and agents work together, where the handoffs happen, and what the safety systems are.</p>
+            </div>
+            <div class="phase-grid-item" style="background:#FFF8E1">
+              <div class="label" style="color:#E65100">The Design Principle</div>
+              <p>The agent owns the <strong>orchestration</strong>. Humans own the <strong>relationships, judgment, and exceptions</strong>. Nobody's role is diminished — the HR coordinator doesn't become less important, they become more important, doing more valuable work with better information.</p>
+            </div>
+          </div>
+          <div style="margin-bottom:14px">
+            <div class="label" style="color:#E65100;font-size:11px;font-weight:700;text-transform:uppercase;margin-bottom:8px">Five Operational Dimensions (for every agent-involved step)</div>
+            <ul class="phase-activities">
+              <li><strong>Transparency:</strong> How is the agent's work made visible? People can't trust what they can't see.</li>
+              <li><strong>Intervention Paths:</strong> When and how can humans step in? Intervention is a feature, not a failure.</li>
+              <li><strong>Governance:</strong> What controls ensure safe, fair operation? Rules need version control and approval workflows.</li>
+              <li><strong>Role Redefinition:</strong> How do human roles change? The goal is elevation — repetitive work moves to agent, judgment work expands for humans.</li>
+              <li><strong>Training & Enablement:</strong> What do people need to learn to work alongside agents? Agent literacy is not optional.</li>
+            </ul>
+          </div>
+          <div class="phase-grid">
+            <div class="phase-grid-item" style="background:#FFF8E1">
+              <div class="label" style="color:#E65100">🏢 At RISE</div>
+              <p>We designed human-agent role maps for pre-boarding: agent handles sequencing, tracking, and reminders. HR handles exceptions, judgment calls, and quality oversight. Managers handle relationships and coaching. Each role is elevated, not replaced.</p>
+            </div>
+            <div class="phase-grid-item" style="background:#F5F5F5">
+              <div class="label" style="color:#718096">Progressive Autonomy (Model C)</div>
+              <p>Agents start at Level 1 (recommend, human approves everything) and earn more autonomy through demonstrated performance. Five levels from full human approval to autonomous execution — with the ability to pull back at any point.</p>
+            </div>
+          </div>
+          <div class="phase-output" style="background:#FFF3E0">
+            <div class="label" style="color:#E65100">📦 Output</div>
+            Human-agent role maps, governance framework, interaction designs, progressive autonomy model, training requirements — the complete blueprint for how the system works.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NAVIGATE -->
+    <div class="phase-card" style="--pc:#6A1B9A" onclick="this.classList.toggle('open')">
+      <div class="phase-dot" style="background:#6A1B9A">N</div>
+      <div class="phase-inner">
+        <div class="phase-head">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="phase-num" style="background:#F3E5F5;color:#6A1B9A">Phase 4</span>
+              <span style="font-size:20px">🧭</span>
+            </div>
+            <h3 style="color:#6A1B9A">NAVIGATE — Stakeholder Communication & Change Management</h3>
+            <div class="subtitle">How do we bring people along?</div>
+          </div>
+          <span class="expand-arrow">▾</span>
+        </div>
+        <div class="phase-details">
+          <div class="phase-grid">
+            <div class="phase-grid-item" style="background:#F3E5F5">
+              <div class="label" style="color:#6A1B9A">🧠 The Analogy</div>
+              <p>The best GPS in the world is useless if the driver doesn't trust it and keeps taking their own route. Navigate is how you build the trust that makes people willing to follow the new system — not because they're told to, but because they understand why it's better.</p>
+            </div>
+            <div class="phase-grid-item" style="background:#F8F0FF">
+              <div class="label" style="color:#6A1B9A">The Core Insight</div>
+              <p>The same change packaged three different ways is three different messages. Executives need ROI. Managers need "what changes for me." New hires need "you're in good hands." Each audience has different concerns, fears, and motivations.</p>
+            </div>
+          </div>
+          <div style="margin-bottom:14px">
+            <div class="label" style="color:#6A1B9A;font-size:11px;font-weight:700;text-transform:uppercase;margin-bottom:8px">Audience-Specific Communication</div>
+            <ul class="phase-activities">
+              <li><strong>Executives:</strong> "This decouples onboarding quality from manager bandwidth, enabling 3x growth without proportional hiring costs"</li>
+              <li><strong>Property Managers:</strong> "This handles the logistics so you can focus on the people. You keep the judgment calls."</li>
+              <li><strong>HR Team:</strong> "Your role shifts from paperwork processing to strategic people operations — quality architect, not task executor."</li>
+              <li><strong>New Hires:</strong> "We use technology to make sure nothing falls through the cracks, so you always know what to expect and who to ask."</li>
+            </ul>
+          </div>
+          <div class="phase-grid">
+            <div class="phase-grid-item" style="background:#FFF8E1">
+              <div class="label" style="color:#E65100">🏢 At RISE</div>
+              <p>The biggest communication challenge: helping property managers understand that the agent handles coordination so they can focus on relationships and coaching — it's not replacing them, it's freeing them from logistics they never wanted to do.</p>
+            </div>
+            <div class="phase-grid-item" style="background:#F5F5F5">
+              <div class="label" style="color:#718096">Transparency as Trust Architecture</div>
+              <p>Transparency isn't just a compliance checkbox — it's how you build the trust that makes the entire system work. When people can see what the agent is doing and why, resistance drops and engagement rises.</p>
+            </div>
+          </div>
+          <div class="phase-output" style="background:#F3E5F5">
+            <div class="label" style="color:#6A1B9A">📦 Output</div>
+            Stakeholder-specific communication materials, manager agent literacy training, new hire disclosure language, change management rollout plan, objection-handling playbook.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRACK -->
+    <div class="phase-card" style="--pc:#C62828" onclick="this.classList.toggle('open')">
+      <div class="phase-dot" style="background:#C62828">T</div>
+      <div class="phase-inner">
+        <div class="phase-head">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="phase-num" style="background:#FFEBEE;color:#C62828">Phase 5</span>
+              <span style="font-size:20px">📈</span>
+            </div>
+            <h3 style="color:#C62828">TRACK — Success Definition & Measurement Framework</h3>
+            <div class="subtitle">Is it working, and how do we improve?</div>
+          </div>
+          <span class="expand-arrow">▾</span>
+        </div>
+        <div class="phase-details">
+          <div class="phase-grid">
+            <div class="phase-grid-item" style="background:#FFEBEE">
+              <div class="label" style="color:#C62828">🧠 The Analogy</div>
+              <p>A thermometer tells you the temperature. A thermostat changes it. Dashboards that only report numbers are thermometers. Track builds <strong>thermostats</strong> — measurement systems that trigger action, not just awareness.</p>
+            </div>
+            <div class="phase-grid-item" style="background:#FFF0F0">
+              <div class="label" style="color:#C62828">The North Star</div>
+              <p>The system isn't successful when dashboards are green. It's successful when <strong>the employees who come through it are visibly, measurably better prepared and more engaged</strong> than those who came before. The employee is the product. Everything else is instrumentation.</p>
+            </div>
+          </div>
+          <div style="margin-bottom:14px">
+            <div class="label" style="color:#C62828;font-size:11px;font-weight:700;text-transform:uppercase;margin-bottom:8px">Three-Tier Measurement Framework</div>
+            <ul class="phase-activities">
+              <li><strong>Tier 1 — Executive ROI:</strong> 90-day turnover rate, time-to-productivity, cost-per-hire, Day 1 readiness rate (Monthly)</li>
+              <li><strong>Tier 2 — Operational Efficiency:</strong> Pre-boarding completion rate, manager hours reclaimed, check-in completion rate, new hire satisfaction (Weekly)</li>
+              <li><strong>Tier 3 — Transformation Sustainability:</strong> Pattern detection rate, insights acted upon, location equity index, cohort-over-cohort improvement (Quarterly)</li>
+            </ul>
+          </div>
+          <div class="phase-grid">
+            <div class="phase-grid-item" style="background:#FFF8E1">
+              <div class="label" style="color:#E65100">🏢 At RISE</div>
+              <p>The strongest evidence Track is working: the shift in what questions leadership asks. From "Did everyone complete their paperwork?" to "What is the system telling us about our next cohort?" That shift from reactive to predictive is the transformation materializing.</p>
+            </div>
+            <div class="phase-grid-item" style="background:#E8F5E9">
+              <div class="label" style="color:#2E7D32">The Improvement Loop</div>
+              <p>Track isn't the end — it's the mechanism that sends the framework back to the beginning. A metric misses target → re-Audit. A pattern emerges → re-Gauge. A human-agent interaction breaks → re-Engineer. Stakeholders resist → re-Navigate. The cycle never stops.</p>
+            </div>
+          </div>
+          <div class="phase-output" style="background:#FFEBEE">
+            <div class="label" style="color:#C62828">📦 Output</div>
+            Three-tier measurement framework, stakeholder-specific dashboards, reporting cadence, continuous improvement protocol, equity monitoring system. The system that ensures all other systems keep getting smarter.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end timeline -->
+
+  <!-- Summary card -->
+  <div class="card summary-card" style="margin-top:24px">
+    <h3>💡 The One-Sentence Summary</h3>
+    <p>"Audit maps where we are and where we want to be. Gauge tells us what's ready. Engineer designs who does what. Navigate brings people along. Track proves it works — and sends us back to Audit to make it better. It's a cycle, not a checklist."</p>
+  </div>
+</div>
+
+</div>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+    // Close all expanded items when switching tabs
+    document.querySelectorAll('.expand-item.open').forEach(function(e) { e.classList.remove('open'); });
+  });
+});
+
+// Toggle expand/collapse
+function toggle(el) {
+  el.classList.toggle('open');
+}
+</script>
+</body>
+</html>
